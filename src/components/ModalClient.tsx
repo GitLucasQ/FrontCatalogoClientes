@@ -1,4 +1,4 @@
-import { Box, Button, Modal, Stack } from "@mui/material";
+import { Box, Button, CircularProgress, Modal, Stack } from "@mui/material";
 import { FormInputText } from "./Forms/FormInputText";
 import { useForm } from "react-hook-form";
 import { FormInputDropdown } from "./Forms/FormInputDropdown";
@@ -10,6 +10,7 @@ import UseAlert from "../hooks/UseAlert";
 import { ChangeEvent, useEffect, useState } from "react";
 import { toBase64 } from "../utilities/File.utility";
 import { IClient } from "../models/response/GetClientsResponse";
+import { green } from "@mui/material/colors";
 
 const style = {
     position: 'absolute',
@@ -47,6 +48,7 @@ const ModalClient = ({ open, clientData, handleClose, reloadData }: IModalClient
     const [showMessage, setShowMessage] = useState(false);
     const [errorSizeCv, setErrorSizeCv] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const { handleSubmit, reset, control, setValue } = useForm<IFormInput>({
         defaultValues: {
@@ -136,6 +138,7 @@ const ModalClient = ({ open, clientData, handleClose, reloadData }: IModalClient
         };
 
         if (isEdit) {
+            setIsLoading(true);
             ClientService.updateClient(payload)
                 .then(async (res) => {
                     if (res !== undefined) {
@@ -145,9 +148,11 @@ const ModalClient = ({ open, clientData, handleClose, reloadData }: IModalClient
                     }
                 })
                 .finally(() => {
+                    setIsLoading(false);
                     onClose();
                 })
         } else {
+            setIsLoading(true);
             ClientService.createClient(payload)
                 .then(async (res) => {
                     if (res !== undefined) {
@@ -157,6 +162,7 @@ const ModalClient = ({ open, clientData, handleClose, reloadData }: IModalClient
                     }
                 })
                 .finally(() => {
+                    setIsLoading(false);
                     onClose();
                 })
         }
@@ -169,6 +175,7 @@ const ModalClient = ({ open, clientData, handleClose, reloadData }: IModalClient
                 onClose={onClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
+                sx={{ overflow: 'scroll' }}
             >
                 <Box sx={style}>
                     <Stack spacing={2}>
@@ -236,6 +243,19 @@ const ModalClient = ({ open, clientData, handleClose, reloadData }: IModalClient
                         >
                             GRABAR
                         </Button>
+                        {isLoading && (
+                            <CircularProgress
+                                size={24}
+                                sx={{
+                                    color: green[500],
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    marginTop: '-12px',
+                                    marginLeft: '-12px',
+                                }}
+                            />
+                        )}
                     </Stack>
                 </Box>
             </Modal>
